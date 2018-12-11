@@ -15,28 +15,28 @@
                 <el-table
                         :data="tableCellList"
                         border>
-                    <el-table-column type="selection"></el-table-column>
-                    <el-table-column
+                    <el-table-column align="center" type="selection"></el-table-column>
+                    <el-table-column align="center"
                             prop="name"
                             label="名称">
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column align="center"
                             prop=""
                             label="数据类型">
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column align="center"
                             prop="lastUpdateTime"
                             label="修改时间">
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column align="center"
                             prop="lastUpdateUser"
                             label="修改人">
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column align="center"
                             prop="remark"
                             label="描述">
                     </el-table-column>
-                    <el-table-column
+                    <el-table-column align="center"
                             label="操作">
                         <template slot-scope="scope">
                             <el-button type="text"
@@ -98,7 +98,7 @@
             <el-table :data="previewTableData"
                       :header-cell-style="{backgroundColor: tableData.thBgc}"
                       :border="tableData.hasBorder">
-                <el-table-column :property="item.text"
+                <el-table-column align="center" :property="item.text"
                                  v-for="(item,index) in tableData.thead"
                                  :key="index"
                                  :label="item.text"></el-table-column>

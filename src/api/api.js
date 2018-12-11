@@ -429,6 +429,64 @@ module.exports = {
             responseType: 'arraybuffer',
             params
         })
-    }
+    },
+    //获取考核分组
+    getCIByAttribution(clsID) {
+        return request({
+            url: `/ci/getCIByAttribution`,
+            method: 'POST',
+            params: {
+                clsID,
+                fillDisplayAttr: true,
+                domain: 'egfbank'
+            },
+            data: []
+        })
+    },
+    //获取对应的已选中的分组列表
+    getRelByCIWithPage({relType, attrId}) {
+        return request({
+            url: `/rel/getRelByCIWithPage/${attrId}`,
+            method: 'GET',
+            params: {
+                domain: 'egfbank',
+                relType,
+                pageSize: 1000000,
+                pageNo: 1
+            },
+        })
+    },
+    //获取考核分组总列表
+    getCiByCypher(data) {
+        return request({
+            url: '/module/business_relationship/query_ci_by_cypher?domain=egfbank',
+            method: 'POST',
+            data
+        })
+    },
+    //获取考核分组的验证信息
+    getCiByCypherQuery(){
+        return request({
+            url: `/module/business_relationship/get/code/%E8%80%83%E6%A0%B8%E5%88%86%E7%BB%84%E8%AE%BE%E7%BD%AE?domain=egfbank`,
+            method: 'GET'
+        })
+    },
+    //提交选中的考核分组
+    postRelBatch(data){
+        return request({
+            url: `/rel/batch`,
+            method: 'POST',
+            data
+        })
+    },
+    //删除考核分组
+    delRelBatch(data){
+        return request({
+            url: `/rel/del`,
+            method: 'POST',
+            data
+        })
+    },
+
 
 }

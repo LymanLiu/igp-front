@@ -24,18 +24,18 @@
           </div>
           <div class="page-table">
             <el-table :data="accountList" border>
-              <el-table-column type="selection"></el-table-column>
-              <el-table-column prop="accountNo" label="账号">
+              <el-table-column align="center" type="selection"></el-table-column>
+              <el-table-column align="center" prop="accountNo" label="账号">
               </el-table-column>
-              <el-table-column prop="name" label="姓名">
+              <el-table-column align="center" prop="name" label="姓名">
               </el-table-column>
-              <el-table-column prop="deptName" label="机构">
+              <el-table-column align="center" prop="deptName" label="机构">
               </el-table-column>
-              <el-table-column prop="belongToGroups" label="工作组">
+              <el-table-column align="center" prop="belongToGroups" label="工作组">
               </el-table-column>
-              <el-table-column prop="roles" label="角色" :formatter="formatterColumn">
+              <el-table-column align="center" prop="roles" label="角色" :formatter="formatterColumn">
               </el-table-column>
-              <el-table-column label="操作">
+              <el-table-column align="center" label="操作">
                 <template slot-scope="scope">
                   <el-button type="text" v-for="(item,index) in optionsList" :key="index" @click="operationRole(scope,item)" size="small">{{item.text}}
                   </el-button>

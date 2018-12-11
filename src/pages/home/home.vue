@@ -17,6 +17,7 @@
                 </div>
             </div>
         </div>
+        <el-button plain round size="small" icon="el-icon-back" class="home-exit" @click="logout">退出</el-button>
     </div>
 </template>
 <script>
@@ -47,6 +48,12 @@
                     query: {
                         parentId: pid
                     }
+                })
+            },
+            logout() {
+                sessionStorage.removeItem('ACCESS_TOKEN')
+                this.$router.replace({
+                    name: 'login'
                 })
             }
         }
@@ -103,6 +110,12 @@
 
     .item-text {
         text-align: center;
+    }
+    .home-exit {
+        position: fixed;
+        right: 40px;
+        bottom: 40px;
+        z-index: 10;
     }
 </style>
 

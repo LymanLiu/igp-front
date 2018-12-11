@@ -5,10 +5,10 @@
                     :default-active="activeIndex"
                     class="el-menu-demo"
                     mode="horizontal"
-                    background-color="#545c64"
-                    text-color="#fff"
+                    background-color="#21518E"
+                    text-color="rgba(255,255,255, 0.65)"
                     @select="selectMenu"
-                    active-text-color="#ffd04b">
+                    active-text-color="#fff">
                 <el-submenu :index="item.id"
                             v-if="item.children.length > 0"
                             v-for="(item,index) in topBar.children" :key="index">
@@ -34,10 +34,11 @@
             <header-fragment></header-fragment>
         </div>
         <div class="page-body">
-            <div class="page-body-btns" v-if="buttonList && buttonList.length > 0">
+            <div class="page-body-btns" v-if="finalButtonList && finalButtonList.length > 0">
+                <filter-header></filter-header>
                 <el-button class="page-body-btn"
                            type="primary"
-                           v-for="(item,index) in buttonList"
+                           v-for="(item,index) in finalButtonList"
                            :key="index"
                            :disabled="buttonListMap[item].disable"
                            @click="topBtnHandle(item)"
@@ -63,21 +64,31 @@
                            :c-id="clsID"></com-table>
             </div>
         </div>
+        <footer-bar></footer-bar>
         <el-dialog
-                :title="dialog.title"
-                :visible="dialog.visible"
-                width="80%"
-                :before-close="closeDialog">
-            <com-form :c-id="clsID"
-                      ref="comForm"
-                      @collectFormData="collectFormData"
-                      :refresh="dialog.visible"
-                      :edit-item="editItemData"
-                      :disable-edit="disableEdit"
-                      :form-config="formConfig"
-                      :form-id="formID"></com-form>
+            :title="dialog.title"
+            :visible="dialog.visible"
+            width="80%"
+            :before-close="closeDialog">
+            <template v-if="dialog.content">
+                <assess-group 
+                    v-if="dialog.content === 'assessGroup'"
+                    :clsID="clsID"
+                    v-model="assessGroupInnerOpen"
+                ></assess-group>
+            </template>
+            <com-form 
+                v-else
+                :c-id="clsID"
+                ref="comForm"
+                @collectFormData="collectFormData"
+                :refresh="dialog.visible"
+                :edit-item="editItemData"
+                :disable-edit="disableEdit"
+                :form-config="formConfig"
+                :form-id="formID"></com-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialog.visible = false">取 消</el-button>
+                <el-button @click="closeDialog">取 消</el-button>
                 <el-button type="primary" @click="submitDiallogForm">确 定</el-button>
             </span>
         </el-dialog>
@@ -99,7 +110,10 @@
     } from '@/api/api'
     import Table from './tableComponent'
     import Form from './formComponent'
-    import HeaderFragment from '@/components/HeaderFragment';
+    import Footer from './footerComponent'
+    import FilterHeader from './filterComponent.vue'
+    import assessGroup from './assessGroup.vue'
+    import HeaderFragment from '@/components/HeaderFragment'
     import { keys } from 'lodash';
     import { download } from '@/utils';
     import dayjs from 'dayjs';
@@ -107,8 +121,10 @@
     export default {
         data() {
             return {
+                assessGroupInnerOpen: false,
                 dialog: {
                     visible: false,
+                    content: null,
                     title: ''
                 },
                 topBar: [],
@@ -143,18 +159,23 @@
                     },
                     export: {
                         text: '导出',
-                        icon: 'el-icon-upload2',
+                        icon: 'el-icon-download',
                         handler: 'exportItem'
                     },
                     import: {
                         text: '导入',
-                        icon: 'el-icon-download',
+                        icon: 'el-icon-upload2',
                         handler: 'importItem'
                     },
                     details: {
                         text: '详情',
                         icon: 'el-icon-search',
                         handler: 'detailsItem'
+                    },
+                    setAssessGroup: {
+                        text: '设置考核分组',
+                        icon: 'el-icon-plus',
+                        handler: 'setAssessGroupItem'
                     }
                 },
                 submitFormParam: {},
@@ -169,6 +190,17 @@
             }).catch(err => {
                 return
             })
+        },
+        computed: {
+            finalButtonList() {
+                const btns = this.buttonList;
+                switch(this.formConfig.name) {
+                    case '考核分组':
+                        btns.push('setAssessGroup');
+                        break;
+                }
+                return btns;
+            }
         },
         methods: {
             checkItem(e) {
@@ -212,6 +244,7 @@
                 this.openDialog()
             },
             selectMenu(id) {
+                this.activeIndex = id
                 this.getPageConfig(id)
             },
             setDisableEdit(e) {
@@ -256,6 +289,7 @@
             closeDialog() {
                 this.dialog.visible = false
                 this.disableEdit = false
+                this.dialog.content = null
             },
             collectFormData(e) {
                 this.submitFormParam = e
@@ -300,6 +334,8 @@
                     })
                 } else if (this.dialog.title == '查看') {
                     this.closeDialog()
+                } else if (this.dialog.content === 'assessGroup') {
+                    this.assessGroupInnerOpen = true
                 }
             },
             topBtnHandle(event) {
@@ -312,6 +348,10 @@
                         break
                     case 'update':
                         this.dialog.title = '编辑'
+                        break
+                    case 'setAssessGroup':
+                        this.dialog.title = '设置考核分组'
+                        this.dialog.content = 'assessGroup'
                         break
                     default:
                         this.dialog.title = '新增'
@@ -373,11 +413,17 @@
                     });
                 });
 
+            },
+            setAssessGroupItem() {
+                this.openDialog()
             }
         },
         components: {
             comTable: Table,
             comForm: Form,
+            footerBar: Footer,
+            filterHeader: FilterHeader,
+            assessGroup,
             HeaderFragment,
         },
         watch: {
@@ -408,7 +454,7 @@
     }
 
     .page-body {
-        height: calc(100% - 60px);
+        height: calc(100% - 90px);
         background-color: rgba(250, 250, 250, .7);
         padding: 15px;
         overflow: auto;

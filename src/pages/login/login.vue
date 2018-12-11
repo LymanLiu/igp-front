@@ -24,6 +24,7 @@
 
 <script>
     import {login} from '@/api/api'
+    import { mapActions } from 'vuex'
 
     export default {
         data() {
@@ -34,6 +35,7 @@
                 checked: false
             }
         },
+
         created() {
             this.userName = localStorage.getItem('userName')
             this.password = localStorage.getItem('password')
@@ -42,6 +44,9 @@
             }
         },
         methods: {
+            // ...mapActions({
+            //     loginAction: 'login'
+            // }),
             login() {
                 if (this.checked) {
                     localStorage.setItem('userName', this.userName)
@@ -56,8 +61,13 @@
                 }).then(res => {
                     if (res.data.status == 'success') {
                         sessionStorage.setItem('ACCESS_TOKEN', res.data.content.accessToken)
+                        this.$store.dispatch('updateUserInfo', {
+                            userInfo: res.data.content
+                        })
                         localStorage.setItem('userId', res.data.content.id)
                         localStorage.setItem('accessToken', res.data.content.accessToken)
+                        localStorage.setItem('accountNo', res.data.content.accountNo)
+                        localStorage.setItem('username', res.data.content.name)
                         this.$router.replace({
                             name: 'home'
                         })

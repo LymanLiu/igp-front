@@ -14,17 +14,17 @@
       </div>
       <div class="page-table">
         <el-table ref="roleTable" :data="roleList" border @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="50"></el-table-column>
-          <el-table-column type="index" width="50" />
-          <el-table-column prop="name" label="角色名称" width="150" :show-overflow-tooltip="true">
+          <el-table-column align="center" type="selection" width="50"></el-table-column>
+          <el-table-column align="center" type="index" width="50" />
+          <el-table-column align="center" prop="name" label="角色名称" width="150" :show-overflow-tooltip="true">
           </el-table-column>
-          <el-table-column prop="lastUpdateUser" label="最后修改人" width="150" :show-overflow-tooltip="true">
+          <el-table-column align="center" prop="lastUpdateUser" label="最后修改人" width="150" :show-overflow-tooltip="true">
           </el-table-column>
-          <el-table-column prop="lastUpdateTime" label="最后修改时间" width="150" :show-overflow-tooltip="true">
+          <el-table-column align="center" prop="lastUpdateTime" label="最后修改时间" width="150" :show-overflow-tooltip="true">
           </el-table-column>
-          <el-table-column prop="remark" label="备注">
+          <el-table-column align="center" prop="remark" label="备注">
           </el-table-column>
-          <el-table-column label="操作" width="200" :show-overflow-tooltip="true">
+          <el-table-column align="center" label="操作" width="200" :show-overflow-tooltip="true">
             <template slot-scope="scope">
               <el-button type="text" v-for="(item,index) in optionsList" :key="index" @click="operationRole(scope,item)" size="small">{{item.text}}
               </el-button>

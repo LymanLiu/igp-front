@@ -7,19 +7,22 @@
                 @select-all="selectItem"
                 border
                 :data="tableData"
-                style="width: 100%; height: calc(100vh - 180px);">
+                style="width: 100%; height: calc(100vh - 210px);">
             <el-table-column
                     v-if="tableData.length>0"
                     type="selection">
             </el-table-column>
             <el-table-column
+                    align="center"
                     :show-overflow-tooltip="true"
                     v-for="(item,index) in tableHeader"
                     :key="index"
                     :prop="item.prop"
-                    :label="item.label">
+                    :label="item.label"
+                    :width="tabelWidth(index)">
             </el-table-column>
             <el-table-column
+                    align="center"
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
@@ -80,9 +83,58 @@
         mounted() {
             this.getTableConfig()
         },
+        computed: {
+            isYaerData() {
+                return this.id === '5b165135114ef36dd7fa7830';
+            },
+        },
         methods: {
+            tabelWidth(index) {
+                const val = [120, 140, 170, 200, 70, 100, 100, 50, 115, 200, 200, 180, 120, 140, 120, 80, 90, 180, 110, 70][index];
+                return this.isYaerData ? val ? val : 120   : null;
+            },
             spanMethod({row, column, rowIndex, columnIndex}) {
-
+                if (this.isYaerData) {
+                    if (columnIndex === 1) {
+                        if (rowIndex % this.pageSize === 0) {
+                            return {
+                                rowspan: this.pageSize,
+                                colspan: 1
+                            };
+                          } else {
+                                return {
+                                    rowspan: 0,
+                                    colspan: 0
+                                };
+                          }
+                    }
+                    if (columnIndex === 2) {
+                        if (rowIndex % (this.pageSize / 2) === 0) {
+                            return {
+                                rowspan: (this.pageSize / 2),
+                                colspan: 1
+                            };
+                          } else {
+                                return {
+                                    rowspan: 0,
+                                    colspan: 0
+                                };
+                          }
+                    }
+                    // if (columnIndex === 3) {
+                    //     if (rowIndex === 3) {
+                    //         return {
+                    //             rowspan: (this.pageSize / 2),
+                    //             colspan: 1
+                    //         };
+                    //       } else {
+                    //             return {
+                    //                 rowspan: 0,
+                    //                 colspan: 0
+                    //             };
+                    //       }
+                    // }
+                }
             },
             selectItem(selection, row) {
                 if (selection.length == 1) {

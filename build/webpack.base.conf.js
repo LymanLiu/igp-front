@@ -42,7 +42,7 @@ module.exports = {
                 }]
             },
             {
-                test: /\.css$/,
+                test: /\.css$|\.less$/,
                 // use: ['css-loader'] vue-style-loader!
                 use: ExtractTextPlugin.extract({
                     fallback: "vue-style-loader",

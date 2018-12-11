@@ -12,18 +12,22 @@
               :data="tableData"
               style="width: 100%">
               <el-table-column
+                align="center"
                 prop="name"
                 label="文档名称">
               </el-table-column>
               <el-table-column
+                align="center"
                 prop="user"
                 label="上传人">
               </el-table-column>
               <el-table-column
+                align="center"
                 prop="date"
                 label="上传时间">
               </el-table-column>
               <el-table-column
+                align="center"
                 label="操作">
                 <template slot-scope="scope">
                     <el-button size="mini" palin circle icon="el-icon-view" @click="preview(scope.row)"></el-button>

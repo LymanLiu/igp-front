@@ -15,28 +15,37 @@
                 <el-table
                         :data="formCellList"
                         border>
-                    <el-table-column type="selection"></el-table-column>
                     <el-table-column
+                            align="center" 
+                            type="selection">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
                             prop="name"
                             label="名称">
                     </el-table-column>
                     <el-table-column
+                            align="center"
                             prop=""
                             label="数据类型">
                     </el-table-column>
                     <el-table-column
+                            align="center"
                             prop="lastUpdateTime"
                             label="修改时间">
                     </el-table-column>
                     <el-table-column
+                            align="center"
                             prop="lastUpdateUser"
                             label="修改人">
                     </el-table-column>
                     <el-table-column
+                            align="center"
                             prop="remark"
                             label="描述">
                     </el-table-column>
                     <el-table-column
+                            align="center"
                             label="操作">
                         <template slot-scope="scope">
                             <el-button type="text"
