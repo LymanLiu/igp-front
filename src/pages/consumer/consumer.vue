@@ -34,7 +34,7 @@
             <header-fragment></header-fragment>
         </div>
         <div class="page-body">
-            <div class="page-body-btns" v-if="finalButtonList && finalButtonList.length > 0">
+            <div class="page-body-btns" v-if="(finalButtonList && finalButtonList.length) > 0 || filterBtnVisible">
                 <filter-header
                     :inputFilterAttrs="inputFilterAttrs"
                     :selectFilterAttrs="selectFilterAttrs"
@@ -534,6 +534,7 @@
         background-color: rgba(250, 250, 250, 0.9);
         border-radius: 4px 4px 0 0;
         position: relative;
+        min-height: 50px;
     }
 
     .page-body-btn {
