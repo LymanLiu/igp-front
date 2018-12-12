@@ -65,7 +65,9 @@
 
 <script>
     import {getTableConfig, getCIdata, delTableDataItem} from '@/api/api'
-    import { differenceBy } from 'lodash';
+    import { differenceBy, keys } from 'lodash';
+    import dayjs from 'dayjs';
+
     export default {
         data() {
             return {
@@ -78,6 +80,8 @@
                 pageNo: 1,
                 pageSize: 10,
                 total: 0,
+                attrStyles: [],
+                spansArr: []
             }
         },
         mounted() {
@@ -85,7 +89,7 @@
         },
         computed: {
             isYaerData() {
-                return this.id === '5b165135114ef36dd7fa7830';
+                return this.tableData[0] && this.tableData[0]['一级指标'];
             },
         },
         methods: {
@@ -93,47 +97,46 @@
                 const val = [120, 140, 170, 200, 70, 100, 100, 50, 115, 200, 200, 180, 120, 140, 120, 80, 90, 180, 110, 70][index];
                 return this.isYaerData ? val ? val : 120   : null;
             },
+            getSpanArr(data, field) {
+                var spanArr = [];
+                for (var i = 0; i < data.length; i++) {
+                    if (i === 0) {
+                          spanArr.push(1);
+                          this.pos = 0
+                    } else {
+                        // 判断当前元素与上一个元素是否相同
+                        if (data[i][field] && data[i][field] === data[i - 1][field]) {
+                                spanArr[this.pos] += 1;
+                                spanArr.push(0);
+                            } else {
+                                spanArr.push(1);
+                                this.pos = i;
+                            }
+                        }
+                }
+                return spanArr;
+            },
+            getSpansArr(tableData) {
+                this.spansArr = this.tableHeader.map(v => {
+                    return this.getSpanArr(tableData, v.prop)
+                    // this.rowSpanAttr.includes(v.prop) ?
+                        // this.spansArr.push(this.getSpanArr(this.tableData, v.prop)) :
+                        // this.spanArr.push([]);
+                })
+
+                // console.log(this.spansArr , '---')
+            },
             spanMethod({row, column, rowIndex, columnIndex}) {
-                if (this.isYaerData) {
-                    if (columnIndex === 1) {
-                        if (rowIndex % this.pageSize === 0) {
-                            return {
-                                rowspan: this.pageSize,
-                                colspan: 1
-                            };
-                          } else {
-                                return {
-                                    rowspan: 0,
-                                    colspan: 0
-                                };
-                          }
-                    }
-                    if (columnIndex === 2) {
-                        if (rowIndex % (this.pageSize / 2) === 0) {
-                            return {
-                                rowspan: (this.pageSize / 2),
-                                colspan: 1
-                            };
-                          } else {
-                                return {
-                                    rowspan: 0,
-                                    colspan: 0
-                                };
-                          }
-                    }
-                    // if (columnIndex === 3) {
-                    //     if (rowIndex === 3) {
-                    //         return {
-                    //             rowspan: (this.pageSize / 2),
-                    //             colspan: 1
-                    //         };
-                    //       } else {
-                    //             return {
-                    //                 rowspan: 0,
-                    //                 colspan: 0
-                    //             };
-                    //       }
-                    // }
+                var colCount = 0;
+                // console.log(columnIndex, this.spansArr[columnIndex])
+                if (columnIndex >= 1 && this.spansArr[columnIndex - 1]) {
+                    const _row = this.spansArr[columnIndex - 1][rowIndex];
+                    const _col = _row > 0 ? 1 : 0;
+                    return {
+                          rowspan: _row,
+                          colspan: _col
+                    }
+
                 }
             },
             selectItem(selection, row) {
@@ -155,37 +158,54 @@
                 }
                 this.tableHeader = arr
                 getTableConfig(this.id).then(res => {
-                    //表头是否排序
 
+                    if (res.data.content.attrStyles) {
+                        this.attrStyles = res.data.content.attrStyles;
+                    }
+
+                    //表头是否排序
                     if (res.data.content.sorterList && res.data.content.sorterList.length > 0) {
                         this.sorterList = res.data.content.sorterList
                     }
                     //是否合并列
                     if (res.data.content.rowSpanAttr && res.data.content.rowSpanAttr.length > 0) {
                         this.rowSpanAttr = res.data.content.rowSpanAttr
-
                     }
-                    //todo 合并规则
+
                     this.getTableData()
+
                 }).catch(err => {
                     return
                 })
             },
             //获取表格数据
-            getTableData() {
+            getTableData(data) {
                 getCIdata({
                     clsID: this.cId, 
                     pageNo: this.pageNo, 
-                    pageSize: this.pageSize
+                    pageSize: this.pageSize,
+                    attrStyles: this.attrStyles,
+                    ...data,
                 }).then(res => {
                     this.sortThead()
                     const arr = res.data.content.results
                     this.total = res.data.content.total;
+                    var _tempTableData = []
                     this.tableData = []
+                    this.spansArr = []
                     for (let i = 0; i < arr.length; i++) {
                         let obj = {id: arr[i].id, ...arr[i].dataFieldMap}
-                        this.tableData.push(obj)
+                        keys(obj).forEach(key => {
+                            if (obj[key] && obj[key].toString().length === 13) {
+                                obj[key] = dayjs(obj[key]).format('YYYY-MM-DD')
+                            }
+                        })
+                        _tempTableData.push(obj)
                     }
+
+                    // 合并规则
+                    this.getSpansArr(_tempTableData);
+                    this.tableData = _tempTableData;
                 }).catch(err => {
                     return
                 })
@@ -236,6 +256,7 @@
                 });
                 const otherHeader = differenceBy(this.tableHeader, tempHeader, 'label');
                 this.tableHeader = tempHeader.concat(otherHeader);
+                // this.tableHeader = tempHeader;
             },
             //当前页 改变时触发
             pageNoChange(pageNo) {

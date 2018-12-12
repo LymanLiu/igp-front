@@ -35,7 +35,13 @@
         </div>
         <div class="page-body">
             <div class="page-body-btns" v-if="finalButtonList && finalButtonList.length > 0">
-                <filter-header></filter-header>
+                <filter-header
+                    :inputFilterAttrs="inputFilterAttrs"
+                    :selectFilterAttrs="selectFilterAttrs"
+                    @search="handleInputFilter"
+                    @selected="handleSelectFilter"
+                    v-show="filterVisible"
+                ></filter-header>
                 <el-button class="page-body-btn"
                            type="primary"
                            v-for="(item,index) in finalButtonList"
@@ -50,6 +56,17 @@
                         v-if="buttonListMap[item].text === '导入'" 
                         @change="importItem">
                 </el-button>
+                <el-tooltip
+                    :content="filterVisible ? '收起' : '展开'"
+                    placement="top-start"
+                >
+                    <el-button
+                        v-if="filterBtnVisible"
+                        :icon="`el-icon-arrow-${filterVisible ? 'up' : 'down'}`"
+                        class="filter-visible-btn"
+                        @click="filterVisible = !filterVisible"
+                        type="text"></el-button>
+                </el-tooltip>
             </div>
             <div class="page-body-content">
                 <com-table v-if="pageType == 2"
@@ -99,7 +116,6 @@
     import {
         getUserIndexSideBar,
         getPageConfig,
-        getTableConfig,
         addTableDataItem,
         getCIdata,
         getFormConfig,
@@ -114,7 +130,7 @@
     import FilterHeader from './filterComponent.vue'
     import assessGroup from './assessGroup.vue'
     import HeaderFragment from '@/components/HeaderFragment'
-    import { keys } from 'lodash';
+    import { keys, without, isEmpty } from 'lodash';
     import { download } from '@/utils';
     import dayjs from 'dayjs';
 
@@ -122,6 +138,7 @@
         data() {
             return {
                 assessGroupInnerOpen: false,
+                filterVisible: true,
                 dialog: {
                     visible: false,
                     content: null,
@@ -181,7 +198,10 @@
                 submitFormParam: {},
                 editItemData: {},
                 disableEdit: false,
-                delMoreItems: []
+                delMoreItems: [],
+                inputFilterAttrs: [],
+                selectFilterAttrs: [],
+                attrKVs: []
             }
         },
         created() {
@@ -193,13 +213,19 @@
         },
         computed: {
             finalButtonList() {
-                const btns = this.buttonList;
+                let btns = this.buttonList.slice();
                 switch(this.formConfig.name) {
                     case '考核分组':
                         btns.push('setAssessGroup');
                         break;
+                    default:
+                        btns = this.buttonList.slice();
+                        break;
                 }
                 return btns;
+            },
+            filterBtnVisible() {
+                return !isEmpty(this.inputFilterAttrs) || !isEmpty(this.selectFilterAttrs)
             }
         },
         methods: {
@@ -257,23 +283,29 @@
             //获取页面配置
             getPageConfig(id) {
                 getPageConfig(id).then(res => {
+                    const data = res.data.content;
+                    //搜索的名称
+                    this.inputFilterAttrs = data.inputFilterAttrs
+                    //筛选选择框
+                    this.selectFilterAttrs = data.selectFilterAttrs
                     //获取tableId
-                    this.tableID = res.data.content.eleTable
+                    this.tableID = data.eleTable
                     //表单id
-                    this.formID = res.data.content.eleForm
+                    this.formID = data.eleForm
                     this.getFormConfig()
                     //?
-                    this.clsID = res.data.content.clsID
+                    this.clsID = data.clsID
                     //按钮列表
-                    this.buttonList = res.data.content.actions
+                    this.buttonList = data.actions || [];
                     //页面类型
-                    this.pageType = res.data.content.pageType
+                    this.pageType = data.pageType
                     //获取表头数据
-                    this.theadMap = res.data.content.attributes
+                    this.theadMap = data.attributes
 
                 }).catch(err => {
                     return
                 })
+
             },
             //获取表单配置
             getFormConfig() {
@@ -416,6 +448,30 @@
             },
             setAssessGroupItem() {
                 this.openDialog()
+            },
+            handleInputFilter(val) {
+                this.setAttrKVs(val)
+
+            },
+            handleSelectFilter(val) {
+                this.setAttrKVs(val)
+
+            },
+            setAttrKVs(val) {
+                var oldVal = this.attrKVs.find(kv => kv.attribute === val.attribute);
+                if (oldVal) {
+                    if (!val.value) {
+                        this.attrKVs = without(this.attrKVs, oldVal);
+                    } else {
+                        oldVal.value = val.value;
+                    }
+                } else {
+                    this.attrKVs.push(val);
+                }
+
+                this.$refs.comTable.getTableData({
+                    attrKVs: this.attrKVs,
+                });
             }
         },
         components: {
@@ -477,6 +533,7 @@
         padding: 10px 20px;
         background-color: rgba(250, 250, 250, 0.9);
         border-radius: 4px 4px 0 0;
+        position: relative;
     }
 
     .page-body-btn {
@@ -498,5 +555,9 @@
         width: 100%;
     }
 
-
+    .filter-visible-btn {
+        position: absolute;
+        right: 30px;
+        bottom: 0px;
+    }
 </style>
