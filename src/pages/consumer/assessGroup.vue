@@ -146,7 +146,7 @@
                     return {
                         domain: 'egfbank',
                         dataFielMap,
-                        destCIID: id,
+                        destCIID: assess.destCIID || assess.id,
                         destCIName: assess.displayName,
                         relationshipTypeID: this.relationshipTypeID,
                         srcCIID: this.selected,
@@ -154,10 +154,7 @@
                     }
                 });
 
-                const delData = this.orinWhiteList.filter(v => !this.whiteList.includes(v.destCIID)).map(v => v.destCIID);
-                this.orinWhiteList = this.orinWhiteList.filter(v => this.whiteList.includes(v.destCIID));
-
-                
+                const delData = this.orinWhiteList.filter(v => !this.whiteList.includes(v.id)).map(v => v.id);
 
                 postRelBatch(addData)
                     .then(res => {
@@ -198,7 +195,6 @@
                                 this.orinWhiteList = res.data.content.results;
                                 this.relationshipTypeID = res.data.content.results[0].relationshipTypeID;
                                 const whiteList = res.data.content.results.map(v => {
-                                    v.id = v.destCIID
                                     v.displayName = v.destCIName
                                     return v
                                 });
