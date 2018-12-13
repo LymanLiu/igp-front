@@ -2,7 +2,6 @@
     <div>
         <el-table
                 :span-method="spanMethod"
-                stripe
                 @select="selectItem"
                 @select-all="selectItem"
                 border

@@ -1,7 +1,29 @@
+@color-primary: #21518E;
+
 .el-table__header {
     th  {
+        background: #fafafa;
         > .cell {
             color: fade(black, 85%);
+        }
+    }
+}
+.el-dialog__header {
+    background: @color-primary;
+    .el-dialog__title {
+        color: white;
+        font-size: 16px;
+        font-weight: normal;
+    }
+}
+
+.el-dialog__headerbtn {
+    .el-dialog__close {
+        color: rgba(255,255,255,0.25);
+    }
+    &:hover {
+        .el-dialog__close {
+            color: rgba(255,255,255,1);
         }
     }
 }
